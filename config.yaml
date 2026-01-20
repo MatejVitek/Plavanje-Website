@@ -1,0 +1,18 @@
+lesson:
+  weekday: thursday
+  time: '14:30'
+  capacity: 6
+  cancel_deadline_hours: 4
+
+signup:
+  weekday: tuesday
+  start: '17:00'
+  end: '20:00'
+
+email:
+  - fri.uni-lj.si
+  - fe.uni-lj.si
+
+algorithm:
+  name: LPV             # LPV (least previous visits), random, weighted_random, or FCFS (first come first serve)
+  weight_exponent: 1.0  # Only used for weighted_random algorithm. 0.0 = uniform random; 0.5-1.0 = random but weighted with number of previous visits; very high (e.g. 99) = LPV.

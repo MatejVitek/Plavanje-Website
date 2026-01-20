@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Swimming Participants</title>
+	<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+	<h1>Chosen Participants</h1>
+	<ul>
+	{% for p in chosen %}
+		<li>{{ p.first_name }} {{ p.last_name }} ({{ p.email }})</li>
+	{% endfor %}
+	</ul>
+	<a href="/cancel">Cancel Participation</a>
+</body>
+</html>
