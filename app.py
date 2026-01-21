@@ -39,7 +39,7 @@ def load_yaml(file):
 def save_yaml(file, data):
 	file.parent.mkdir(parents=True, exist_ok=True)
 	with file.open('w') as f:
-		yaml.safe_dump(data, f)
+		yaml.safe_dump(data, f, sort_keys=False, default_flow_style=False)
 
 def get_config():
 	return load_yaml(CONFIG_FILE)
@@ -124,16 +124,14 @@ def choose_indices(items, capacity):
 		p=weights,
 	).tolist()
 
-def select_participants():
+def finalize_selection():
 	signups = load_yaml(SIGNUPS_FILE).get('signups', [])
+
 	cap = get_config()['lesson']['capacity']
 	indices = choose_indices(signups, cap)
 	chosen = [signups[i] for i in indices]
 	waiting = [s for i, s in enumerate(signups) if i not in indices]
-	return chosen, waiting
 
-def finalize_selection():
-	chosen, waiting = select_participants()
 	save_yaml(SELECTION_FILE, {
 		'chosen': chosen,
 		'waiting': waiting,
@@ -266,12 +264,74 @@ def cancel():
 
 	return render_template('cancel.html')
 
+@app.route('/admin', methods=['GET'])
+def admin():
+	with lock:
+		cfg = get_config()
+	return render_template('admin.html', cfg=cfg)
+
 @app.route('/admin/rerun', methods=['POST'])
 def admin_rerun():
 	with lock:
-		finalize_selection()
-		flash("Selection rerun successfully.")
-	return redirect('/')
+		# Load selection
+		selection = load_yaml(SELECTION_FILE)
+		chosen = selection.get('chosen', [])
+		waiting = selection.get('waiting', [])
+		history_saved = selection.get('history_saved', False)
+
+		# Only allow rerun if signup window is closed and cancel deadline not reached
+		if in_signup_window():
+			flash("Cannot rerun selection during signup window.")
+			return redirect('/admin')
+		if over_cancel_deadline():
+			flash("Cannot rerun selection after cancellation deadline.")
+			return redirect('/admin')
+
+		# Combine current chosen + waiting for rerun
+		all_candidates = chosen + waiting
+		if not all_candidates:
+			flash("No participants to rerun selection.")
+			return redirect('/admin')
+
+		# Select new participants
+		cap = get_config()['lesson']['capacity']
+		indices = choose_indices(all_candidates, cap)
+		new_chosen = [all_candidates[i] for i in indices]
+		new_waiting = [all_candidates[i] for i in range(len(all_candidates)) if i not in indices]
+
+		# Save updated selection, keep history_saved flag
+		save_yaml(SELECTION_FILE, {
+			'chosen': new_chosen,
+			'waiting': new_waiting,
+			'history_saved': history_saved,
+		})
+
+	flash("Selection rerun successfully.")
+	return redirect('/admin')
+
+@app.route('/admin/config', methods=['POST'])
+def admin_update_config():
+	with lock:
+		cfg = get_config()
+
+		cfg['signup']['weekday'] = request.form['signup_weekday'].strip()
+		cfg['signup']['start'] = request.form['signup_start'].strip()
+		cfg['signup']['end'] = request.form['signup_end'].strip()
+
+		cfg['lesson']['weekday'] = request.form['lesson_weekday'].strip()
+		cfg['lesson']['time'] = request.form['lesson_time'].strip()
+		cfg['lesson']['capacity'] = int(request.form['lesson_capacity'])
+		cfg['lesson']['cancel_deadline_hours'] = int(request.form['cancel_deadline_hours'])
+
+		cfg['email'] = [d.strip() for d in request.form['email_domains'].splitlines() if d.strip()]
+
+		cfg['algorithm']['name'] = request.form['algorithm_name']
+		cfg['algorithm']['weight_exponent'] = float(request.form['weight_exponent'])
+
+		save_yaml(CONFIG_FILE, cfg)
+
+	flash("Configuration updated successfully.")
+	return redirect('/admin')
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=8000)

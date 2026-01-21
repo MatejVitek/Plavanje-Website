@@ -16,3 +16,19 @@ ul { list-style-type: none; padding: 0; }
 	padding: 0.5em;
 	margin-bottom: 0.5em;
 }
+
+hr {
+	margin: 2em 0;
+}
+
+label {
+	display: block;
+	margin-top: 0.8em;
+	font-weight: bold;
+}
+
+textarea {
+	width: 100%;
+	padding: 0.5em;
+	font-family: monospace;
+}

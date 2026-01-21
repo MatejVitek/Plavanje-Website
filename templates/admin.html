@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Admin</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>Admin panel</h1>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul class="flashes">
+	{% for msg in messages %}
+	<li>{{ msg }}</li>
+	{% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+<h2>Rerun selection</h2>
+<form method="post" action="{{ url_for('admin_rerun') }}">
+	<button type="submit">Rerun participant selection</button>
+</form>
+
+<hr>
+
+<h2>Lesson settings</h2>
+<form method="post" action="{{ url_for('admin_update_config') }}">
+
+	<label>Lesson weekday</label>
+	<input name="lesson_weekday" value="{{ cfg.lesson.weekday }}" required>
+
+	<label>Lesson time (HH:MM)</label>
+	<input name="lesson_time" value="{{ cfg.lesson.time }}" required>
+
+	<label>Capacity</label>
+	<input type="number" min="1" name="lesson_capacity" value="{{ cfg.lesson.capacity }}" required>
+
+	<label>Cancellation deadline (hours)</label>
+	<input type="number" min="0" name="cancel_deadline_hours"
+	       value="{{ cfg.lesson.cancel_deadline_hours }}" required>
+
+	<h2>Signup window</h2>
+
+	<label>Signup weekday</label>
+	<input name="signup_weekday" value="{{ cfg.signup.weekday }}" required>
+
+	<label>Signup start (HH:MM)</label>
+	<input name="signup_start" value="{{ cfg.signup.start }}" required>
+
+	<label>Signup end (HH:MM)</label>
+	<input name="signup_end" value="{{ cfg.signup.end }}" required>
+
+	<h2>Email domains</h2>
+	<p>One domain per line</p>
+	<textarea name="email_domains" rows="4">{{ cfg.email | join('\n') }}</textarea>
+
+	<h2>Selection algorithm</h2>
+
+	<label>Algorithm</label>
+	<select name="algorithm_name">
+		{% for name in ['LPV', 'random', 'weighted_random', 'FCFS'] %}
+		<option value="{{ name }}" {% if cfg.algorithm.name == name %}selected{% endif %}>
+			{{ name }}
+		</option>
+		{% endfor %}
+	</select>
+
+	<label>Weight exponent (weighted_random only)</label>
+	<input type="number" step="0.1" name="weight_exponent"
+	       value="{{ cfg.algorithm.weight_exponent }}">
+
+	<button type="submit">Save configuration</button>
+</form>
+
+</body>
+</html>
