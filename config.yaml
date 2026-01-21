@@ -5,9 +5,9 @@ lesson:
   cancel_deadline_hours: 4
 
 signup:
-  weekday: tuesday
-  start: '17:00'
-  end: '20:00'
+  weekday: friday
+  start: '10:00'
+  end: '12:00'
 
 email:
   - fri.uni-lj.si

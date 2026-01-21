@@ -5,6 +5,16 @@
 	<link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			<ul class="flashes">
+			{% for message in messages %}
+				<li>{{ message }}</li>
+			{% endfor %}
+			</ul>
+		{% endif %}
+	{% endwith %}
+
 	<h1>Cancel Participation</h1>
 	<form method="POST">
 		<input type="email" name="email" placeholder="Your Email" required>

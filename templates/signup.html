@@ -5,12 +5,25 @@
 	<link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-	<h1>Swimming Lesson Signup</h1>
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			<ul class="flashes">
+			{% for message in messages %}
+				<li>{{ message }}</li>
+			{% endfor %}
+			</ul>
+		{% endif %}
+	{% endwith %}
+
+	<h1>Swimming Signup</h1>
+
 	<form method="POST">
 		<input type="text" name="first_name" placeholder="First Name" required>
 		<input type="text" name="last_name" placeholder="Last Name" required>
 		<input type="email" name="email" placeholder="Email" required>
 		<button type="submit">Sign Up</button>
 	</form>
+
+	<a href="/cancel">Cancel Participation</a>
 </body>
 </html>

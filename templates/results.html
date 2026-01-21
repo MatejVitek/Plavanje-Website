@@ -5,12 +5,30 @@
 	<link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			<ul class="flashes">
+			{% for message in messages %}
+				<li>{{ message }}</li>
+			{% endfor %}
+			</ul>
+		{% endif %}
+	{% endwith %}
+
 	<h1>Chosen Participants</h1>
 	<ul>
-	{% for p in chosen %}
-		<li>{{ p.first_name }} {{ p.last_name }} ({{ p.email }})</li>
-	{% endfor %}
+		{% for p in chosen %}
+			<li>{{ p.first_name }} {{ p.last_name }} ({{ p.email }})</li>
+		{% endfor %}
 	</ul>
+
+	<h2>Waiting List</h2>
+	<ul>
+		{% for p in waiting %}
+			<li>{{ p.first_name }} {{ p.last_name }} ({{ p.email }})</li>
+		{% endfor %}
+	</ul>
+
 	<a href="/cancel">Cancel Participation</a>
 </body>
 </html>
